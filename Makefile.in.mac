@@ -1,0 +1,5 @@
+# -- Compile settings for my laptop
+CC       = gcc-mp-4.8
+CFLAGS   = -std=gnu99 -Wall -g -fopenmp
+OPTFLAGS = -O3
+LIBS     = -lm -llua

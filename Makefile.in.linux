@@ -1,5 +1,5 @@
 # -- Compile settings for the cluster
 CC       = /share/cs-instructional/cs5220/local/gcc-4.8.2/bin/gcc
-CFLAGS   = -std=gnu99 -Wall -g
+CFLAGS   = -std=gnu99 -Wall -g -fopenmp
 OPTFLAGS = -O3
 LIBS     = -lm

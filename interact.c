@@ -13,7 +13,7 @@
 #include "binhash.h"
 
 /* Define this to use the bucketing version of the code */
-/* #define USE_BUCKETING */
+#define USE_BUCKETING
 
 /*@T
  * \subsection{Density computations}
@@ -59,8 +59,30 @@ void compute_density(sim_state_t* s, sim_param_t* params)
 
     // Accumulate density info
 #ifdef USE_BUCKETING
-    /* BEGIN TASK */
-    /* END TASK */
+    // Array for storing the locations of surrouding bins
+    unsigned* bins_neighbor = (unsigned*) calloc(MAX_NBR_BINS, sizeof(unsigned));
+
+    for (int i = 0; i < n; ++i) {
+        particle_t* pi = s->part+i;
+        pi->rho += 4 * s->mass / M_PI / h3;
+
+        // Find the surrouding bins
+        unsigned num_neighbor = particle_neighborhood(bins_neighbor, pi, h);
+
+        for (int j = 0; j < num_neighbor; ++j) {
+            unsigned loc = bins_neighbor[j];
+
+            // Update the densities of p_i and p_k for k>=i+1 and k<n
+            particle_t* pk = hash[loc];
+            while (!pk) {
+                if (pk > pi)
+                    update_density(pi, pk, h2, C);
+                pk = pk->next;
+            }
+        }
+    }
+    
+    free(bins_neighbor);
 #else
     for (int i = 0; i < n; ++i) {
         particle_t* pi = s->part+i;
@@ -150,8 +172,29 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
 
     // Accumulate forces
 #ifdef USE_BUCKETING
-    /* BEGIN TASK */
-    /* END TASK */
+    // Array for storing the locations of surrouding bins
+    unsigned* bins_neighbor = (unsigned*) calloc(MAX_NBR_BINS, sizeof(unsigned));
+
+    for (int i = 0; i < n; ++i) {
+        particle_t* pi = p+i;
+
+        // Find the surrouding bins
+        unsigned num_neighbor = particle_neighborhood(bins_neighbor, pi, h);
+
+        for (int j = 0; j < num_neighbor; ++j) {
+            unsigned loc = bins_neighbor[j];
+
+            // Update the forces of p_i and p_k for k>=i+1 and k<n
+            particle_t* pk = hash[loc];
+            while (!pk) {
+                if (pk > pi)
+                    update_forces(pi, pk, h2, rho0, C0, Cp, Cv);
+                pk = pk->next;
+            }
+        }
+    }
+    
+    free(bins_neighbor);
 #else
     for (int i = 0; i < n; ++i) {
         particle_t* pi = p+i;

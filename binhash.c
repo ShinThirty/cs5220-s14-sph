@@ -30,22 +30,23 @@ unsigned particle_bucket(particle_t* p, float h)
 
 unsigned particle_neighborhood(unsigned* buckets, particle_t* p, float h)
 {
-    unsigned ix = p->x[0]/h;
-    unsigned iy = p->x[1]/h;
-    unsigned iz = p->x[2]/h;
+    int ix = (unsigned)(p->x[0]/h) & HASH_MASK;
+    int iy = (unsigned)(p->x[1]/h) & HASH_MASK;
+    int iz = (unsigned)(p->x[2]/h) & HASH_MASK;
     unsigned loc = 0;
-    int i = 0;
+    unsigned i = 0;
     
     // Traverse through all surrouding bins and add their locations into array
     // buckets
     for (int diz = -1; diz <= 1; ++diz)
-        for (int diy = -1; diy <= 1; ++diy)
-            for (int dix = -1; dix <= 1; ++dix)
-            {
-                loc = zm_encode((ix+dix) & HASH_MASK, (iy+diy) & HASH_MASK, 
-                        (iz+diz) & HASH_MASK);
-                buckets[i++] = loc;
-            }
+        if (iz+diz >=0 && iz+diz < HASH_DIM)
+            for (int diy = -1; diy <= 1; ++diy) 
+                if (iy+diy >=0 && iy+diy < HASH_DIM)
+                    for (int dix = -1; dix <= 1; ++dix)
+                        if (ix+dix >=0 && ix+dix < HASH_DIM) {
+                            loc = zm_encode(ix+dix, iy+diy, iz+diz);
+                            buckets[i++] = loc;
+                        }
 
     // Return the number of surrounding buckets
     return i;

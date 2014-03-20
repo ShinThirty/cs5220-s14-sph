@@ -13,7 +13,7 @@
 #include "binhash.h"
 
 /* Define this to use the bucketing version of the code */
-/* #define USE_BUCKETING */
+#define USE_BUCKETING
 
 /*@T
  * \subsection{Density computations}
@@ -46,6 +46,7 @@ void compute_density(sim_state_t* s, sim_param_t* params)
     int n = s->n;
     particle_t* p = s->part;
     particle_t** hash = s->hash;
+    unsigned* bins = s->bins;
 
     float h  = params->h;
     float h2 = h*h;
@@ -59,8 +60,25 @@ void compute_density(sim_state_t* s, sim_param_t* params)
 
     // Accumulate density info
 #ifdef USE_BUCKETING
-    /* BEGIN TASK */
-    /* END TASK */
+    for (int i = 0; i < n; ++i) {
+        particle_t* pi = s->part+i;
+        pi->rho += 4 * s->mass / M_PI / h3;
+
+        // Find the surrouding bins
+        unsigned num_neighbor = particle_neighborhood(bins, pi, h);
+
+        for (int j = 0; j < num_neighbor; ++j) {
+            unsigned loc = bins[j];
+
+            // Update the densities of p_i and p_k for k>=i+1 and k<n
+            particle_t* pk = hash[loc];
+            while (pk) {
+                if (pk > pi)
+                    update_density(pi, pk, h2, C);
+                pk = pk->next;
+            }
+        }
+    }
 #else
     for (int i = 0; i < n; ++i) {
         particle_t* pi = s->part+i;
@@ -131,6 +149,7 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
     // Unpack system state
     particle_t* p = state->part;
     particle_t** hash = state->hash;
+    unsigned* bins = state->bins;
     int n = state->n;
 
     // Rehash the particles
@@ -150,8 +169,24 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
 
     // Accumulate forces
 #ifdef USE_BUCKETING
-    /* BEGIN TASK */
-    /* END TASK */
+    for (int i = 0; i < n; ++i) {
+        particle_t* pi = p+i;
+
+        // Find the surrouding bins
+        unsigned num_neighbor = particle_neighborhood(bins, pi, h);
+
+        for (int j = 0; j < num_neighbor; ++j) {
+            unsigned loc = bins[j];
+
+            // Update the forces of p_i and p_k for k>=i+1 and k<n
+            particle_t* pk = hash[loc];
+            while (pk) {
+                if (pk > pi)
+                    update_forces(pi, pk, h2, rho0, C0, Cp, Cv);
+                pk = pk->next;
+            }
+        }
+    }
 #else
     for (int i = 0; i < n; ++i) {
         particle_t* pi = p+i;

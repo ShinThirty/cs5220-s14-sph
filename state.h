@@ -26,6 +26,7 @@ typedef struct sim_state_t {
     float mass;           /* Particle mass          */
     particle_t* part;     /* Particles              */
     particle_t** hash;    /* Hash table             */
+    unsigned* bins;       /* Locations of neighbors */
 } sim_state_t;
 
 sim_state_t* alloc_state(int n);

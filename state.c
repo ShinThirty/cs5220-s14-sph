@@ -8,11 +8,13 @@ sim_state_t* alloc_state(int n)
     s->n     = n;
     s->part  = (particle_t*) calloc(n, sizeof(particle_t));
     s->hash  = (particle_t**) calloc(HASH_SIZE, sizeof(particle_t*));
+    s->bins  = (unsigned*) calloc(MAX_NBR_BINS, sizeof(unsigned));
     return s;
 }
 
 void free_state(sim_state_t* s)
 {
+    free(s->bins);
     free(s->hash);
     free(s->part);
     free(s);

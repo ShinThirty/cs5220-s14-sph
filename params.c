@@ -19,7 +19,7 @@
 static void default_params(sim_param_t* params)
 {
     params->fname   = "run.out";
-    params->nframes = 40;
+    params->nframes = 120;
     params->npframe = 100;
     params->dt      = 1e-4;
     params->h       = 5e-2;

@@ -61,7 +61,7 @@ a velocity $\bfv_i$, and a density $\rho_i$.  Particle $i$ interacts
 with the set $N_i$ of particles within radius $h$ of $i$.
 The density is computed at each step by
 \[
-  \rho_i = \frac{4m}{\pi h^8} \sum_{j \in N_i} (h^2 - r^2)^3.
+  \rho_i = \frac{315m}{64\pi h^9} \sum_{j \in N_i} (h^2 - r^2)^3.
 \]
 The acceleration is computed by the rule
 \[

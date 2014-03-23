@@ -125,7 +125,7 @@ static void damp_reflect(int which, float barrier,
 /*@T
  *
  * For each particle, we need to check for reflections on each
- * of the four walls of the computational domain.
+ * of the six walls of the computational domain.
  *@c*/
 static void reflect_bc(sim_state_t* s)
 {

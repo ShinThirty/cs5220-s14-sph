@@ -26,9 +26,9 @@
  * In particular, we define the initial geometry of the fluid in terms of an
  * {\em indicator function} that is one for points in the domain occupied
  * by fluid and zero elsewhere.  A [[domain_fun_t]] is a pointer to an
- * indicator for a domain, which is a function that takes two floats and
+ * indicator for a domain, which is a function that takes three floats and
  * returns 0 or 1.  Two examples of indicator functions are a little box
- * of fluid in the corner of the domain and a circular drop.
+ * of fluid in the corner of the domain and a spherical drop.
  *@c*/
 typedef int (*domain_fun_t)(float, float, float);
 

@@ -62,7 +62,7 @@ void compute_density(sim_state_t* s, sim_param_t* params)
 #ifdef USE_BUCKETING
     for (int i = 0; i < n; ++i) {
         particle_t* pi = s->part+i;
-        pi->rho += 4 * s->mass / M_PI / h3;
+        pi->rho += ( 315.0/64.0/M_PI ) * s->mass / h3;
 
         // Find the surrouding bins
         unsigned num_neighbor = particle_neighborhood(bins, pi, h);
@@ -82,7 +82,7 @@ void compute_density(sim_state_t* s, sim_param_t* params)
 #else
     for (int i = 0; i < n; ++i) {
         particle_t* pi = s->part+i;
-        pi->rho += 4 * s->mass / M_PI / h3;
+        pi->rho += ( 315.0/64.0/M_PI ) * s->mass / h3;
         for (int j = i+1; j < n; ++j) {
             particle_t* pj = s->part+j;
             update_density(pi, pj, h2, C);

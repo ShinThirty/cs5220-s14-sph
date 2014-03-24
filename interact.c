@@ -152,9 +152,6 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
     unsigned* bins = state->bins;
     int n = state->n;
 
-    // Rehash the particles
-    hash_particles(state, h);
-
     // Compute density and color
     compute_density(state, params);
 

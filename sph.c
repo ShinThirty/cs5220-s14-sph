@@ -153,15 +153,28 @@ int main(int argc, char** argv)
     int npframe = params.npframe;
     float dt    = params.dt;
     int n       = state->n;
+    float h     = params.h;
+
+    const int FRAME_INTERVAL = 10;
+    int step = 0;
 
     double t_start = omp_get_wtime();
     //write_header(fp, n);
     write_header(fp, n, nframes, params.h);
     write_frame_data(fp, n, state, NULL);
+    hash_particles(state, h);
     compute_accel(state, &params);
     leapfrog_start(state, dt);
     check_state(state);
+
     for (int frame = 1; frame < nframes; ++frame) {
+        if (step == FRAME_INTERVAL) {
+            particles_relocation(state, h);
+            step = 0;
+        }
+        else ++step;
+
+        hash_particles(state, h);
         for (int i = 0; i < npframe; ++i) {
             compute_accel(state, &params);
             leapfrog_step(state, dt);

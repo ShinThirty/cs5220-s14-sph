@@ -12,6 +12,8 @@
 #include "interact.h"
 #include "binhash.h"
 
+#include "omp.h"
+
 /* Define this to use the bucketing version of the code */
 #define USE_BUCKETING
 
@@ -46,7 +48,7 @@ void compute_density(sim_state_t* s, sim_param_t* params)
     int n = s->n;
     particle_t* p = s->part;
     particle_t** hash = s->hash;
-    unsigned* bins = s->bins;
+    //unsigned* bins = s->bins;
 
     float h  = params->h;
     float h2 = h*h;
@@ -60,11 +62,16 @@ void compute_density(sim_state_t* s, sim_param_t* params)
 
     // Accumulate density info
 #ifdef USE_BUCKETING
-    for (int i = 0; i < n; ++i) {
+	int i=0;
+//omp_set_num_threads(8);
+#pragma omp parallel for shared(p,hash)
+    for (i = 0; i < n; ++i) {
         particle_t* pi = s->part+i;
         pi->rho += ( 315.0/64.0/M_PI ) * s->mass / h3;
 
         // Find the surrouding bins
+		unsigned* bins;
+		bins  = (unsigned*) calloc(27, sizeof(unsigned));
         unsigned num_neighbor = particle_neighborhood(bins, pi, h);
 
         for (int j = 0; j < num_neighbor; ++j) {
@@ -149,7 +156,7 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
     // Unpack system state
     particle_t* p = state->part;
     particle_t** hash = state->hash;
-    unsigned* bins = state->bins;
+    //unsigned* bins = state->bins;
     int n = state->n;
 
     // Compute density and color
@@ -166,10 +173,15 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
 
     // Accumulate forces
 #ifdef USE_BUCKETING
-    for (int i = 0; i < n; ++i) {
+	int i=0;
+//omp_set_num_threads(8);
+#pragma omp parallel for shared(p,hash)
+    for (i = 0; i < n; ++i) {
         particle_t* pi = p+i;
 
         // Find the surrouding bins
+		unsigned* bins;
+		bins  = (unsigned*) calloc(27, sizeof(unsigned));
         unsigned num_neighbor = particle_neighborhood(bins, pi, h);
 
         for (int j = 0; j < num_neighbor; ++j) {
